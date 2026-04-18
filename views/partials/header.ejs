@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/locales/pt-br.js"></script>
+    <title>Tick[d] | Dashboard</title>
+</head>
+<div id="toast-container" class="toast-container"></div>
+
+<script>
+function showToast(mensagem, tipo = "erro") {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `modern-toast ${tipo === 'sucesso' ? 'success' : ''}`;
+    
+    const icon = tipo === 'sucesso' ? 'fa-check-circle' : 'fa-exclamation-circle';
+    const color = tipo === 'sucesso' ? '#27ae60' : '#ff5f5f';
+
+    toast.innerHTML = `
+        <i class="fas ${icon}" style="color: ${color}"></i>
+        <div class="modern-toast-content">${mensagem}</div>
+    `;
+
+    container.appendChild(toast);
+
+    // Trigger de animação
+    setTimeout(() => toast.classList.add('show'), 100);
+
+    // Remove após 4 segundos
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 500);
+    }, 4000);
+}
+</script>
+<body>

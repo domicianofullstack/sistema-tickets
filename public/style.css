@@ -1,0 +1,569 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+/* --- VARIÁVEIS DE TEMA --- */
+:root {
+    --sidebar-deep-blue: #1a1a8e;
+    --sidebar-hover-blue: #4141d5;
+    --sidebar-text-muted: #b2b2d8;
+    
+    --bg-light: #f3f4f9;
+    --white: #ffffff;
+    --text-main: #3d4465;
+    
+    --primary: #2c3ecf;
+    --success: #27ae60;
+    --border-color: #f0f1f5;
+}
+
+/* --- RESET --- */
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-light);
+    display: flex;
+    color: var(--text-main);
+}
+
+/* --- SIDEBAR --- */
+.sidebar {
+    width: 280px;
+    background: var(--sidebar-deep-blue);
+    height: 100vh;
+    color: white;
+    position: fixed;
+    overflow-y: auto;
+    z-index: 100;
+}
+
+.logo {
+    font-size: 32px;
+    font-weight: 800;
+    padding: 40px 30px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.nav-section { padding: 0 20px; }
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    color: var(--sidebar-text-muted);
+    text-decoration: none;
+    border-radius: 12px;
+    margin-bottom: 5px;
+    transition: 0.3s;
+    font-size: 15px;
+}
+
+.nav-item i:first-child { width: 30px; font-size: 18px; }
+.nav-item span { flex: 1; }
+.nav-item .arrow { font-size: 10px; opacity: 0.5; }
+
+.nav-item.active, .nav-item:hover {
+    background: var(--sidebar-hover-blue);
+    color: white;
+}
+
+.nav-item.open {
+    background: var(--sidebar-hover-blue);
+    color: white;
+    border-radius: 12px 12px 0 0;
+    margin-bottom: 0;
+}
+
+.submenu {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 0 0 12px 12px;
+    margin-bottom: 10px;
+    padding: 10px 0;
+}
+
+.submenu a {
+    display: block;
+    padding: 10px 65px;
+    color: var(--sidebar-text-muted);
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.submenu a.active-sub { color: white; font-weight: 600; }
+
+/* --- CONTEÚDO PRINCIPAL --- */
+.main-content {
+    margin-left: 280px;
+    width: calc(100% - 280px);
+    min-height: 100vh;
+}
+
+/* --- TOPBAR (ESTILO TIXIA) --- */
+.topbar {
+    height: 80px;
+    background: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 30px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-box i {
+    position: absolute;
+    left: 20px;
+    color: #a5a5a5;
+}
+
+.search-box input {
+    background: #f3f4f9;
+    border: none;
+    padding: 12px 20px 12px 50px;
+    border-radius: 30px;
+    width: 300px;
+}
+
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.action-icons { display: flex; gap: 10px; }
+
+.icon-btn {
+    background: #f3f4f9;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    color: #6e6e6e;
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-btn .badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 8px;
+    height: 8px;
+    background: #ff5f5f;
+    border-radius: 50%;
+    border: 2px solid #fff;
+}
+
+.user-profile { display: flex; align-items: center; gap: 12px; }
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    object-fit: cover;
+}
+
+.btn-schedule {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(44, 62, 207, 0.2);
+}
+
+/* --- CARDS E GRID --- */
+.content-body { padding: 40px; }
+
+.card {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(82, 63, 105, 0.05);
+}
+
+.card-header-simple {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.card-header-simple h3 {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 25px;
+    margin-top: 30px;
+}
+
+.card-body {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+/* --- TABELA --- */
+.table-responsive { width: 100%; overflow-x: auto; }
+
+table { width: 100%; border-collapse: collapse; }
+
+th {
+    text-align: left;
+    font-size: 13px;
+    text-transform: uppercase;
+    color: #a5a5a5;
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+td {
+    padding: 20px 15px;
+    border-bottom: 1px solid #f8f8f8;
+    font-size: 14px;
+}
+
+/* --- BADGES E STATUS --- */
+.status-badge {
+    padding: 6px 15px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.bg-open { background: rgba(3, 169, 244, 0.1); color: #03a9f4; }
+.bg-progress { background: rgba(255, 152, 0, 0.1); color: #ff9800; }
+.bg-resolved { background: rgba(39, 174, 96, 0.1); color: #27ae60; }
+.bg-closed { background: rgba(158, 158, 158, 0.1); color: #9e9e9e; }
+
+.priority-indicator { display: flex; align-items: center; gap: 8px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; }
+.dot-alta { background: #ff5f5f; }
+.dot-media { background: #ff9800; }
+.dot-baixa { background: #27ae60; }
+
+.btn-action {
+    width: 35px;
+    height: 35px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.3s;
+}
+
+.btn-edit { background: rgba(44, 62, 207, 0.1); color: var(--primary); }
+.btn-delete { background: rgba(255, 95, 95, 0.1); color: #ff5f5f; }
+
+.btn-edit:hover { background: var(--primary); color: white; }
+.btn-delete:hover { background: #ff5f5f; color: white; }
+
+/* Botão Criar Ticket - Estilo Moderno */
+.btn-create-ticket {
+    background: linear-gradient(135deg, #2c3ecf 0%, #4b5cf5 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(44, 62, 207, 0.25);
+}
+
+.btn-create-ticket i {
+    font-size: 14px;
+    transition: transform 0.3s ease;
+}
+
+/* Efeito ao passar o mouse */
+.btn-create-ticket:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(44, 62, 207, 0.4);
+    background: linear-gradient(135deg, #4b5cf5 0%, #2c3ecf 100%);
+}
+
+.btn-create-ticket:hover i {
+    transform: rotate(90deg); /* O ícone de + gira levemente no hover */
+}
+
+/* Efeito de clique */
+.btn-create-ticket:active {
+    transform: translateY(0);
+}
+
+/* --- WELCOME BANNER --- */
+.welcome-banner {
+    background-color: #fff9e1; /* Amarelo suave Tixia */
+    border-radius: 20px;
+    padding: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    position: relative;
+    overflow: hidden;
+}
+
+.welcome-text {
+    max-width: 60%;
+    z-index: 2;
+}
+
+.welcome-text h2 {
+    color: #ff9f43;
+    font-size: 28px;
+    margin-bottom: 15px;
+}
+
+.welcome-text p {
+    color: #7e7e7e;
+    line-height: 1.6;
+    margin-bottom: 25px;
+    font-size: 15px;
+}
+
+/* Botões do Banner */
+.welcome-btns {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.btn-learn {
+    background: #ff9f43;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 30px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: 0.3s;
+}
+
+.btn-learn:hover {
+    background: #e68a2e;
+    transform: translateX(5px);
+}
+
+.btn-remind {
+    background: transparent;
+    border: none;
+    color: #a5a5a5;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+/* --- DESIGN DOS CUBOS 3D (Lado Direito) --- */
+.welcome-image {
+    position: relative;
+    width: 200px;
+    height: 200px;
+}
+
+.cubes-container {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.cube {
+    width: 80px;
+    height: 80px;
+    position: absolute;
+    border-radius: 10px;
+}
+
+.cube.pink {
+    background: #ff4d7e;
+    right: 60px;
+    top: -20px;
+    z-index: 2;
+    box-shadow: 15px 15px 30px rgba(255, 77, 126, 0.3);
+}
+
+.cube.blue-light {
+    background: #4db5ff;
+    right: 0;
+    top: 20px;
+    z-index: 3;
+    box-shadow: 15px 15px 30px rgba(77, 181, 255, 0.3);
+}
+
+.cube.blue-dark {
+    background: #2c3ecf;
+    right: 80px;
+    top: 50px;
+    z-index: 1;
+    opacity: 0.8;
+}
+
+/* Responsividade do Banner */
+@media (max-width: 768px) {
+    .welcome-banner {
+        flex-direction: column;
+        text-align: center;
+    }
+    .welcome-text { max-width: 100%; }
+    .welcome-image { display: none; }
+    .welcome-btns { justify-content: center; }
+}
+
+/* Container do Calendário */
+.calendar-wrapper {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 20px;
+    padding: 20px;
+    min-height: 700px;
+}
+
+.calendar-sidebar {
+    border-right: 1px solid var(--border-color);
+    padding-right: 20px;
+}
+
+.calendar-sidebar h4 {
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+/* Tags de Eventos */
+.event-tag {
+    padding: 12px 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: default;
+}
+
+.bg-danger { background: #ff5f5f; }
+.bg-primary { background: #2c3ecf; }
+.bg-success { background: #27ae60; }
+
+/* Ajustes no FullCalendar para combinar com Tixia */
+.fc .fc-toolbar-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-transform: capitalize;
+}
+
+.fc .fc-button-primary {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    border-radius: 8px;
+}
+
+.fc .fc-daygrid-day-number {
+    padding: 10px;
+    font-weight: 500;
+    color: var(--text-main);
+}
+
+.fc-event {
+    border: none !important;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+/* TOAST NOTIFICATION GLOBAL */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+.modern-toast {
+    background: white;
+    border-left: 5px solid #ff5f5f; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    padding: 15px 25px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transform: translateX(120%);
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    margin-bottom: 10px;
+}
+
+.modern-toast.show {
+    transform: translateX(0);
+}
+
+.modern-toast.success {
+    border-left-color: #27ae60;
+}
+
+.modern-toast i {
+    font-size: 20px;
+}
+
+.modern-toast-content {
+    color: #333;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+
+
+@media (max-width: 991px) {
+    .calendar-wrapper { grid-template-columns: 1fr; }
+    .calendar-sidebar { border-right: none; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
+}
+
+/* Remove o sublinhado padrão de todos os links de ação para ficar mais clean */
+    .btn-action {
+        text-decoration: none !important;
+    }
+    .btn-edit {
+        background: rgba(44, 62, 207, 0.1);
+        color: var(--primary) !important;
+    }
+    .btn-edit:hover {
+        background: var(--primary);
+        color: white !important;
+    }
+
+/* --- RESPONSIVIDADE --- */
+@media (max-width: 1200px) {
+    .dashboard-grid { grid-template-columns: 1fr; }
+}

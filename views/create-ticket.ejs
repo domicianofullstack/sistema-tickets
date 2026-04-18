@@ -1,0 +1,309 @@
+<%- include('partials/header') %>
+<%- include('partials/menu') %>
+
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
+<style>
+    /* 1. AJUSTES DE ESTRUTURA E ESPAÇAMENTO */
+    #ticket-container .card-body {
+        height: auto !important;
+        position: static !important;
+        padding: 35px !important;
+    }
+
+    .ticket-page-wrapper {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding-bottom: 30px;
+    }
+
+    /* 2. GRID E INPUTS MODERNOS */
+    .ticket-compact-grid {
+        display: grid;
+        grid-template-columns: 3fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .ticket-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-main);
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .ticket-input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        font-size: 14px;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    /* 3. EDITOR QUILL */
+    #editor-wrapper { margin-bottom: 25px; }
+    #editor {
+        height: 220px;
+        border-radius: 0 0 10px 10px;
+        background: white;
+    }
+
+    /* 4. ÁREA DE UPLOAD E PREVIEWS */
+    .ticket-upload-box {
+        background: #fbfbfb;
+        border: 2px dashed #ccd0d5;
+        border-radius: 15px;
+        padding: 30px;
+        text-align: center;
+        transition: 0.3s;
+        cursor: pointer;
+    }
+
+    .ticket-upload-box:hover {
+        border-color: var(--primary);
+        background: #f0f2ff;
+    }
+
+    #preview-grid {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 15px;
+        flex-wrap: wrap;
+    }
+
+    .img-preview {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        border-radius: 12px;
+        border: 2px solid white;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .img-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 10px;
+    }
+
+    /* ESTILO DO BOTÃO X CORRIGIDO */
+    .btn-remove-img {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #ff5f5f;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        z-index: 10;
+        transition: 0.2s;
+    }
+
+    .btn-remove-img:hover {
+        background: #e04a4a;
+        transform: scale(1.1);
+    }
+
+    /* 5. BOTÃO DE ENVIO E FOOTER */
+    .submit-area { margin-top: 25px; text-align: right; }
+
+    .unique-ticket-footer {
+        margin-top: 20px;
+        padding: 20px;
+        background: rgba(44, 62, 207, 0.05);
+        border-radius: 15px;
+        text-align: center;
+        border: 1px solid rgba(44, 62, 207, 0.1);
+    }
+    /* TOAST NOTIFICATION MODERNO */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+
+.modern-toast {
+    background: white;
+    border-left: 5px solid #ff5f5f; /* Cor de erro por padrão */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    padding: 15px 25px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transform: translateX(120%);
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    margin-bottom: 10px;
+}
+
+.modern-toast.show {
+    transform: translateX(0);
+}
+
+.modern-toast.success {
+    border-left-color: #27ae60;
+}
+
+.modern-toast i {
+    font-size: 20px;
+}
+
+.modern-toast-content {
+    color: #333;
+    font-size: 14px;
+    font-weight: 500;
+}
+</style>
+<div id="toast-container" class="toast-container"></div>
+<div class="welcome-banner">
+    <div class="welcome-text">
+        <h2><i class="fas fa-plus-circle"></i> Abrir Novo Chamado</h2>
+        <p>Preencha os campos abaixo para notificar nossa equipe técnica.</p>
+    </div>
+</div>
+
+<div class="ticket-page-wrapper" id="ticket-container">
+    <div class="card">
+        <div class="card-body">
+            <form action="/novo-ticket" method="POST" enctype="multipart/form-data" id="ticketForm">
+                
+                <div class="ticket-compact-grid">
+                    <div class="form-group">
+                        <label class="ticket-label">Título do Pedido</label>
+                        <input type="text" name="titulo" placeholder="Ex: Erro ao emitir contrato" required class="ticket-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="ticket-label">Prioridade</label>
+                        <select name="prioridade" class="ticket-input">
+                            <option value="baixa">Baixa</option>
+                            <option value="media" selected>Média</option>
+                            <option value="alta">Alta</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="editor-wrapper">
+                    <label class="ticket-label">Descrição Detalhada</label>
+                    <div id="editor"></div>
+                    <input type="hidden" name="descricaotext" id="descricaotext">
+                </div>
+
+                <div class="ticket-upload-box" id="drop-area">
+                    <i class="fas fa-cloud-upload-alt" style="font-size: 30px; color: var(--primary); margin-bottom: 10px;"></i>
+                    <p style="font-weight: 600; color: var(--text-main);">Clique para anexar evidências</p>
+                    <span style="font-size: 12px; color: #a5a5a5;">(Máx. 3 imagens PNG ou JPG)</span>
+                    
+                    <input type="file" id="imagensInput" name="imagens" accept="image/*" multiple style="display: none;">
+                    <div id="preview-grid"></div>
+                </div>
+
+                <div class="submit-area">
+                    <button type="submit" class="btn-create-ticket" style="padding: 12px 45px;">
+                        Enviar Ticket <i class="fas fa-paper-plane" style="margin-left: 8px;"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="unique-ticket-footer">
+        <p><i class="fas fa-user-shield"></i> Suporte Tick[d]: Analisamos chamados 24/7. Você receberá atualizações em tempo real.</p>
+    </div>
+</div>
+
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+<script>
+    var quill = new Quill('#editor', {
+        theme: 'snow',
+        placeholder: 'Descreva detalhadamente o problema...',
+        modules: { toolbar: [['bold', 'italic', 'underline'], [{ 'list': 'ordered'}, { 'list': 'bullet' }], ['clean']] }
+    });
+
+    const imgInput = document.getElementById('imagensInput');
+    const previewGrid = document.getElementById('preview-grid');
+    const dropArea = document.getElementById('drop-area');
+    
+    // VARIÁVEL QUE ARMAZENA OS ARQUIVOS REALMENTE SELECIONADOS
+    let arquivosAcumulados = [];
+
+    // Trigger do clique (evitando o botão de remover)
+    dropArea.addEventListener('click', (e) => {
+        if (!e.target.closest('.btn-remove-img')) {
+            imgInput.click();
+        }
+    });
+
+    imgInput.addEventListener('change', function(e) {
+        const files = Array.from(e.target.files);
+        
+        // Verifica limite de 3
+        if (arquivosAcumulados.length + files.length > 3) {
+            alert("Você só pode enviar até 3 imagens.");
+            return;
+        }
+
+        files.forEach(file => {
+            arquivosAcumulados.push(file);
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const div = document.createElement('div');
+                div.className = 'img-preview';
+                div.dataset.name = file.name;
+                div.innerHTML = `
+                    <img src="${event.target.result}">
+                    <button type="button" class="btn-remove-img">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                
+                // Evento para remover do acúmulo
+                div.querySelector('.btn-remove-img').onclick = (e) => {
+                    e.stopPropagation();
+                    const nameToRemove = div.dataset.name;
+                    arquivosAcumulados = arquivosAcumulados.filter(f => f.name !== nameToRemove);
+                    div.remove();
+                };
+
+                previewGrid.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Limpa o valor do input para permitir selecionar o mesmo arquivo novamente se desejar
+        imgInput.value = "";
+    });
+
+    // ANTES DE ENVIAR: Injetar os arquivos acumulados no input
+    // ANTES DE ENVIAR: Injetar os arquivos acumulados no input
+    document.getElementById('ticketForm').onsubmit = function(e) {
+        document.getElementById('descricaotext').value = quill.root.innerHTML;
+
+        const dataTransfer = new DataTransfer();
+        arquivosAcumulados.forEach(file => dataTransfer.items.add(file));
+        imgInput.files = dataTransfer.files;
+
+        if (quill.getText().trim().length < 5) {
+            // USANDO O TOAST QUE VOCÊ ADICIONOU
+            showToast("Por favor, forneça uma descrição detalhada.", "erro");
+            e.preventDefault();
+            return false;
+        }
+        
+        // Opcional: Mostrar toast de carregamento
+        showToast("Enviando seu chamado...", "sucesso");
+    };
+</script>

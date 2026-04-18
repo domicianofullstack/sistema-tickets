@@ -1,0 +1,171 @@
+<%- include('partials/header') %>
+<%- include('partials/menu') %>
+
+<style>
+    /* Estilização moderna para o FullCalendar */
+    :root {
+        --fc-border-color: #f0f0f0;
+        --fc-daygrid-dot-event-marker-size: 8px;
+        --fc-button-bg-color: #2c3ecf;
+        --fc-button-border-color: #2c3ecf;
+        --fc-button-hover-bg-color: #1e2ba3;
+    }
+
+    .calendar-container {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 25px;
+        background: transparent;
+    }
+
+    /* Coluna de Legendas/Alertas Lateral */
+    .calendar-sidebar {
+        background: white;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        height: fit-content;
+    }
+
+    .sidebar-title {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    .event-category {
+        display: flex;
+        align-items: center;
+        padding: 12px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .event-category:hover { transform: translateX(5px); }
+    
+    /* Cores dos alertas lateral igual à imagem */
+    .cat-new { background: #eeefff; color: #2c3ecf; }
+    .cat-urgent { background: #fff1f1; color: #ff5f5f; }
+    .cat-process { background: #fff9ee; color: #ff9f43; }
+    .cat-done { background: #ebfbf2; color: #2ecc71; }
+
+    .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 12px;
+    }
+
+    /* Ajustes no Calendário Principal */
+    .calendar-main {
+        background: white;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    }
+
+    .fc .fc-toolbar-title { font-size: 20px; font-weight: 700; color: #2c3ecf; }
+    .fc .fc-button-primary { border-radius: 8px; text-transform: capitalize; padding: 8px 16px; font-weight: 600; }
+    .fc .fc-col-header-cell { padding: 12px 0; background: #fcfcfd; font-weight: 600; color: #666; }
+    .fc-theme-standard td, .fc-theme-standard th { border: 1px solid #f0f0f0 !important; }
+</style>
+
+<div class="calendar-container">
+    <aside class="calendar-sidebar">
+        <div class="sidebar-title">Status Tickets</div>
+        <p style="font-size: 12px; color: #888; margin-bottom: 20px;">Arraste ou filtre seus eventos</p>
+
+        <div class="event-category cat-new">
+            <span class="dot" style="background: #2c3ecf;"></span> Novos Tickets
+        </div>
+        <div class="event-category cat-urgent">
+            <span class="dot" style="background: #ff5f5f;"></span> Urgentes
+        </div>
+        <div class="event-category cat-process">
+            <span class="dot" style="background: #ff9f43;"></span> Em Andamento
+        </div>
+        <div class="event-category cat-done">
+            <span class="dot" style="background: #2ecc71;"></span> Resolvidos
+        </div>
+
+    </aside>
+
+    <main class="calendar-main">
+        <div id="calendar"></div>
+    </main>
+</div>
+
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 1. Pega os dados dos tickets injetados pelo Node.js
+    const ticketsData = <%- JSON.stringify(tickets) %>;
+
+    // 2. Mapeia os tickets para o formato de eventos do FullCalendar
+    const ticketEvents = ticketsData.map(ticket => {
+        let color = '#2c3ecf'; // Padrão (Novos/Abertos)
+        
+        // Define a cor baseada no status ou prioridade
+        if (ticket.prioridade === 'alta') {
+            color = '#ff5f5f'; // Urgente (Vermelho)
+        } else if (ticket.status === 'em_progresso') {
+            color = '#ff9f43'; // Em Andamento (Laranja)
+        } else if (ticket.status === 'resolvido' || ticket.status === 'fechado') {
+            color = '#2ecc71'; // Resolvido (Verde)
+        }
+
+        return {
+            id: ticket.id,
+            title: `#${ticket.id} - ${ticket.titulo}`,
+            start: ticket.criado_em, // Data de criação do ticket
+            backgroundColor: color,
+            borderColor: color,
+            extendedProps: {
+                status: ticket.status,
+                cliente: ticket.cliente_nome
+            }
+        };
+    });
+
+    const calendarEl = document.getElementById('calendar');
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      locale: 'pt-br',
+      height: 650,
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek,listWeek'
+      },
+      buttonText: {
+        today: 'Hoje',
+        month: 'Mês',
+        week: 'Semana',
+        day: 'Dia',
+        list: 'Lista'
+      },
+      // 3. Usa os eventos mapeados do banco de dados
+      events: ticketEvents,
+
+      // 4. Ação ao clicar no ticket (Redireciona para os detalhes)
+      eventClick: function(info) {
+        window.location.href = '/ticket/' + info.event.id;
+      },
+
+      // 5. Melhora a visualização do evento (Tooltip simples)
+      eventDidMount: function(info) {
+        const title = info.event.title;
+        const cliente = info.event.extendedProps.cliente ? ` | Cliente: ${info.event.extendedProps.cliente}` : '';
+        info.el.title = title + cliente;
+      }
+    });
+
+    calendar.render();
+  });
+</script>

@@ -1,0 +1,90 @@
+<%- include('partials/header') %>
+<%- include('partials/menu') %>
+
+<div class="welcome-banner">
+    <div class="welcome-text">
+        <h2>Cadastro de clientes</h2>
+        <p>Este é o seu painel do Tick[d]. Aqui você pode cadastrar seus clientes</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header-simple">
+        <h3><i class="fas fa-user-plus"></i> Novo Cadastro</h3>
+    </div>
+    <div class="card-body">
+        <form action="/admin/criar-usuario" method="POST" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="form-group">
+                <label>Nome Completo</label>
+                <input type="text" name="nome" placeholder="Ex: João Silva" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
+            </div>
+            <div class="form-group">
+                <label>E-mail Corporativo</label>
+                <input type="email" name="email" placeholder="email@empresa.com" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
+            </div>
+            <div class="form-group">
+                <label>Senha Inicial</label>
+                <input type="password" name="senha" placeholder="********" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px;">
+            </div>
+            <div class="form-group">
+                <label>Nível de Acesso</label>
+                <select name="tipo" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; background: white;">
+                    <option value="cliente">Cliente (Apenas visualiza seus tickets)</option>
+                    <option value="admin">Administrador (Gestão total)</option>
+                </select>
+            </div>
+            <div style="grid-column: span 2; text-align: right; margin-top: 10px;">
+                <button type="submit" class="btn-create-ticket" style="padding: 12px 30px; font-size: 16px;">
+                    Finalizar Cadastro <i class="fas fa-check"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card" style="margin-top: 30px;">
+    <div class="card-header-simple">
+        <h3><i class="fas fa-users"></i> Usuários Cadastrados</h3>
+    </div>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>E-mail</th>
+                    <th>Tipo</th>
+                    <th>Cadastro em</th>
+                    <th style="text-align: center;">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% usuarios.forEach(u => { %>
+                <tr>
+                    <td><strong><%= u.nome %></strong></td>
+                    <td><%= u.email %></td>
+                    <td>
+                        <span class="status-badge" style="background-color: <%= u.tipo === 'admin' ? '#ffeaa7' : '#dfe6e9' %>; color: #2d3436;">
+                            <%= u.tipo.toUpperCase() %>
+                        </span>
+                    </td>
+                    <td><%= new Date(u.criado_em).toLocaleDateString('pt-BR') %></td>
+                    <td>
+                        <div style="display: flex; gap: 5px; justify-content: center;">
+                            <% if (u.id !== user.id) { %>
+                                <a href="/admin/excluir-usuario/<%= u.id %>" 
+                                   class="btn-action btn-delete" 
+                                   onclick="return confirm('Tem certeza que deseja remover este usuário?')" 
+                                   title="Excluir Usuário">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            <% } else { %>
+                                <span style="font-size: 10px; color: #bbb;">(Você)</span>
+                            <% } %>
+                        </div>
+                    </td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</div>

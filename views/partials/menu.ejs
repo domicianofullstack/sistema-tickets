@@ -1,0 +1,108 @@
+<div class="sidebar">
+    <div class="logo">
+        <i class="fas fa-ticket-alt"></i> Tick[d]
+    </div>
+    
+    <div class="nav-section">
+        <a href="/dashboard" class="nav-item <%= currentPage === 'dashboard' ? 'active' : '' %>">
+            <i class="fas fa-th-large"></i> <span>Dashboard</span>
+            <i class="fas fa-chevron-right arrow"></i>
+        </a>
+        
+        <% if (user.tipo === 'cliente') { %>
+            <a href="#" class="nav-item">
+                <i class="fas fa-file-alt"></i> <span>Contrato</span>
+                <i class="fas fa-chevron-right arrow"></i>
+            </a>
+        <% } %>
+
+        <div class="nav-item <%= (currentPage === 'calendar' || currentPage === 'dashboard' || currentPage === 'create-ticket') ? 'open' : '' %>">
+            <i class="fas fa-ticket-alt"></i> <span>Ticket</span>
+            <i class="fas fa-chevron-down arrow"></i>
+        </div>
+        
+        <div class="submenu">
+    <a href="/create-ticket" class="<%= currentPage === 'create-ticket' ? 'active' : '' %>">Criar Ticket</a>
+    <a href="/calendar" class="<%= currentPage === 'calendar' ? 'active' : '' %>">Calendário</a>
+</div>
+
+        <% if (user.tipo === 'admin') { %>
+            <div style="margin: 20px 0 10px 25px; font-size: 11px; font-weight: bold; color: #5c6bc0; letter-spacing: 1px;">ADMINISTRAÇÃO</div>
+            
+            <a href="/cadastro" class="nav-item <%= currentPage === 'cadastro' ? 'active' : '' %>">
+                <i class="fas fa-user-plus"></i> <span>Cadastrar Usuário</span>
+                <i class="fas fa-chevron-right arrow"></i>
+            </a>
+        <% } %>
+
+        <a href="#" class="nav-item">
+            <i class="fas fa-user-friends"></i> <span>Configurações</span>
+            <i class="fas fa-chevron-right arrow"></i>
+        </a>
+        
+        <a href="/logout" class="nav-item" style="margin-top: auto; color: #ffffff;">
+            <i class="fas fa-sign-out-alt"></i> <span>Sair</span>
+        </a>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="topbar">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Procurar...">
+        </div>
+
+        <div class="topbar-actions">
+            <div class="action-icons">
+                <button class="icon-btn"><i class="far fa-moon"></i></button>
+                <button class="icon-btn"><i class="far fa-bell"></i><span class="badge"></span></button>
+            </div>
+
+            <div class="user-profile">
+                <img src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" alt="User Avatar" class="avatar">
+                <div class="user-info">
+                    <strong><%= user.nome %></strong>
+                    <span style="font-size: 10px; display: block; color: #888; font-weight: bold;">
+                        <i class="fas fa-shield-alt"></i> <%= user.tipo.toUpperCase() %>
+                    </span>
+                </div>
+            </div>
+
+            <button class="btn-schedule">
+                <i class="far fa-calendar-alt"></i>
+                Eventos (5)
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+    <div class="content-body">
+
+        <div id="toast-container" class="toast-container"></div>
+
+<script>
+function showToast(mensagem, tipo = "erro") {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = `modern-toast ${tipo === 'sucesso' ? 'success' : ''}`;
+    
+    const icon = tipo === 'sucesso' ? 'fa-check-circle' : 'fa-exclamation-circle';
+    const color = tipo === 'sucesso' ? '#27ae60' : '#ff5f5f';
+
+    toast.innerHTML = `
+        <i class="fas ${icon}" style="color: ${color}"></i>
+        <div class="modern-toast-content">${mensagem}</div>
+    `;
+
+    container.appendChild(toast);
+
+    // Trigger de animação
+    setTimeout(() => toast.classList.add('show'), 100);
+
+    // Remove após 4 segundos
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 500);
+    }, 4000);
+}
+</script>

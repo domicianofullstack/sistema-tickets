@@ -1,0 +1,326 @@
+<%- include('partials/header') %>
+<%- include('partials/menu') %>
+
+<style>
+    .ticket-view-wrapper {
+        width: 100%;
+        max-width: 1000px;
+        margin: 0 auto;
+        padding-bottom: 50px;
+    }
+
+    /* --- PAINEL ADMIN CLEAN --- */
+    .admin-actions-card {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 25px 35px;
+        margin-bottom: 30px;
+        border: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        box-shadow: 0 10px 30px rgba(44, 62, 207, 0.05);
+    }
+
+    .admin-info h4 {
+        margin: 0;
+        color: var(--primary);
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .admin-info p {
+        margin: 5px 0 0 0;
+        font-size: 13px;
+        color: #888;
+    }
+
+    .admin-buttons {
+        display: flex;
+        gap: 12px;
+    }
+
+    .btn-admin-action {
+        border: none;
+        padding: 10px 20px;
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: 0.3s;
+    }
+
+    .btn-resolve {
+        background: rgba(39, 174, 96, 0.1);
+        color: #27ae60;
+    }
+
+    .btn-resolve:hover {
+        background: #27ae60;
+        color: white;
+    }
+
+    .btn-close-ticket {
+        background: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+    }
+
+    .btn-close-ticket:hover {
+        background: #dc3545;
+        color: white;
+    }
+
+    /* --- ESTILOS EXISTENTES --- */
+    .ticket-header-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 25px;
+    }
+
+    .ticket-id-badge {
+        background: var(--primary);
+        color: white;
+        padding: 5px 15px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 10px;
+        display: inline-block;
+    }
+
+    .info-labels {
+        display: flex;
+        gap: 15px;
+        margin-top: 10px;
+    }
+
+    .ticket-content-card {
+        background: var(--white);
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 10px 30px rgba(82, 63, 105, 0.05);
+        border: 1px solid var(--border-color);
+        margin-bottom: 30px;
+    }
+
+    .ticket-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--text-main);
+        margin-bottom: 20px;
+        border-bottom: 2px solid var(--bg-light);
+        padding-bottom: 15px;
+    }
+
+    .description-box {
+        font-size: 15px;
+        line-height: 1.8;
+        color: #555;
+        margin-bottom: 30px;
+        background: #fdfdfd;
+        padding: 20px;
+        border-radius: 12px;
+    }
+
+    .attachment-grid {
+        display: flex;
+        gap: 15px;
+        margin-top: 15px;
+    }
+
+    .attachment-item {
+        width: 150px;
+        height: 150px;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 3px solid white;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .attachment-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .chat-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        margin-bottom: 40px;
+    }
+
+    .message {
+        padding: 20px;
+        border-radius: 15px;
+        max-width: 85%;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    }
+
+    .message.admin {
+        align-self: flex-start;
+        background: #eef1ff;
+        border-left: 5px solid var(--primary);
+    }
+
+    .message.user {
+        align-self: flex-end;
+        background: #ffffff;
+        border: 1px solid var(--border-color);
+    }
+
+    .msg-info {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: #888;
+        margin-bottom: 8px;
+    }
+
+    .reply-box {
+        background: white;
+        padding: 30px;
+        border-radius: 20px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+
+    textarea.reply-input {
+        width: 100%;
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 20px;
+        font-family: 'Poppins', sans-serif;
+        resize: none;
+        margin-bottom: 15px;
+        font-size: 14px;
+    }
+
+    .waiting-response {
+        background: rgba(255, 152, 0, 0.1);
+        color: #ff9800;
+        padding: 20px;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-top: 30px;
+        font-weight: 500;
+    }
+</style>
+
+<div class="welcome-banner">
+    <div class="welcome-text">
+        <h2><i class="fas fa-ticket-alt"></i> Detalhes do Chamado</h2>
+        <p>Acompanhe aqui o andamento da sua solicitação.</p>
+    </div>
+</div>
+
+<div class="ticket-view-wrapper">
+
+    <% if (user.tipo === 'admin' && ticket.status !== 'fechado' && ticket.status !== 'resolvido') { %>
+        <div class="admin-actions-card">
+            <div class="admin-info">
+                <h4><i class="fas fa-user-shield"></i> Gestão do Atendimento</h4>
+                <p>O que deseja fazer com este ticket agora?</p>
+            </div>
+            <div class="admin-buttons">
+                <form action="/ticket/status" method="POST">
+                    <input type="hidden" name="ticket_id" value="<%= ticket.id %>">
+                    <input type="hidden" name="novo_status" value="resolvido">
+                    <button type="submit" class="btn-admin-action btn-resolve">
+                        <i class="fas fa-check-circle"></i> Resolver
+                    </button>
+                </form>
+
+                <form action="/ticket/status" method="POST">
+                    <input type="hidden" name="ticket_id" value="<%= ticket.id %>">
+                    <input type="hidden" name="novo_status" value="fechado">
+                    <button type="submit" class="btn-admin-action btn-close-ticket">
+                        <i class="fas fa-times-circle"></i> Encerrar
+                    </button>
+                </form>
+            </div>
+        </div>
+    <% } %>
+
+    <div class="ticket-header-info">
+        <div>
+            <span class="ticket-id-badge">#<%= ticket.id %></span>
+            <div class="info-labels">
+                <span class="status-badge bg-<%= ticket.status === 'aberto' ? 'open' : (ticket.status === 'em_progresso' ? 'progress' : (ticket.status === 'resolvido' ? 'resolved' : 'closed')) %>">
+                    <%= ticket.status.replace('_', ' ').toUpperCase() %>
+                </span>
+                <div class="priority-indicator">
+                    <span class="dot dot-<%= ticket.prioridade %>"></span>
+                    <span style="font-size: 13px; font-weight: 500; text-transform: capitalize;">
+                        Prioridade <%= ticket.prioridade %>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div style="text-align: right; color: #a5a5a5; font-size: 13px;">
+            Criado em: <%= new Date(ticket.criado_em).toLocaleString('pt-BR') %>
+        </div>
+    </div>
+
+    <div class="ticket-content-card">
+        <h1 class="ticket-title"><%= ticket.titulo %></h1>
+        <div class="description-box"><%- ticket.descricao %></div>
+
+        <% if(ticket.imagem1 || ticket.imagem2 || ticket.imagem3) { %>
+            <div class="attachments-section">
+                <label class="ticket-label" style="margin-bottom: 10px; display: block;"><i class="fas fa-paperclip"></i> Anexos Enviados</label>
+                <div class="attachment-grid">
+                    <% [ticket.imagem1, ticket.imagem2, ticket.imagem3].forEach(img => { %>
+                        <% if(img) { %>
+                            <a href="/uploads/<%= img %>" target="_blank" class="attachment-item">
+                                <img src="/uploads/<%= img %>">
+                            </a>
+                        <% } %>
+                    <% }) %>
+                </div>
+            </div>
+        <% } %>
+    </div>
+
+    <div class="chat-container">
+        <h3 class="ticket-label" style="font-size: 18px; margin-bottom: 10px;"><i class="fas fa-comments"></i> Conversa</h3>
+        <% mensagens.forEach(msg => { %>
+            <div class="message <%= msg.tipo === 'admin' ? 'admin' : 'user' %>">
+                <div class="msg-info">
+                    <strong><%= msg.nome %> <span>(<%= msg.tipo.toUpperCase() %>)</span></strong>
+                    <span><%= new Date(msg.criado_em).toLocaleString('pt-BR') %></span>
+                </div>
+                <p style="margin: 0; font-size: 14.5px; color: var(--text-main); line-height: 1.6;"><%= msg.mensagem %></p>
+            </div>
+        <% }) %>
+    </div>
+
+    <% if(ticket.status !== 'fechado' && ticket.status !== 'resolvido') { %>
+        <div class="reply-box">
+            <form action="/ticket/responder" method="POST">
+                <input type="hidden" name="ticket_id" value="<%= ticket.id %>">
+                <label class="ticket-label" style="margin-bottom: 15px; display: block;">Sua Resposta</label>
+                <textarea name="mensagem" class="reply-input" rows="5" placeholder="Digite aqui sua mensagem..." required></textarea>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <a href="/dashboard" style="color: #888; text-decoration: none; font-size: 14px;"><i class="fas fa-arrow-left"></i> Voltar</a>
+                    <button type="submit" class="btn-create-ticket">Enviar Resposta <i class="fas fa-paper-plane"></i></button>
+                </div>
+            </form>
+        </div>
+    <% } else { %>
+        <div class="waiting-response" style="background: #f8f9fa; color: #6c757d; border: 1px solid #dee2e6;">
+            <i class="fas fa-lock"></i>
+            <span>Este ticket está <strong>finalizado</strong> e não aceita mais interações.</span>
+        </div>
+    <% } %>
+</div>

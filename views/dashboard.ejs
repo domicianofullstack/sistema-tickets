@@ -1,0 +1,217 @@
+<%- include('partials/header') %>
+<%- include('partials/menu') %>
+
+<div class="welcome-banner">
+    <div class="welcome-text">
+        <h2>Bem vindo, <%= user.nome %>!</h2>
+        <p>Este é o seu painel do Tick[d]. Aqui você pode acompanhar seus chamados e gerenciar suas solicitações de suporte.</p>
+        <div class="welcome-btns">
+            <button class="btn-learn" onclick="window.location='/create-ticket'">Novo Ticket <i class="fas fa-plus"></i></button>
+            <button class="btn-remind">Fale com suporte</button>
+        </div>
+    </div>
+    <div class="welcome-image">
+        <div class="cubes-container">
+            <div class="cube pink"></div>
+            <div class="cube blue-light"></div>
+            <div class="cube blue-dark"></div>
+        </div>
+    </div>
+</div>
+
+<div class="card" style="margin-bottom: 30px;">
+    <div class="card-header-simple">
+        <h3><%= user.tipo === 'admin' ? 'Todos os Tickets do Sistema' : 'Meus Chamados' %></h3>
+        <a href="/create-ticket" class="btn-create-ticket" style="text-decoration: none;">
+            <i class="fas fa-plus"></i>
+            <span>Criar Ticket</span>
+        </a>
+    </div>
+
+    <% if (tickets.length > 0) { %>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ticket ID</th>
+                        <th>Assunto</th>
+                        <th>Status</th>
+                        <th>Prioridade</th>
+                        <th>Data</th>
+                        <th style="text-align: center;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% tickets.forEach(ticket => { %>
+                    <tr>
+                        <td>#<%= ticket.id %></td>
+                        <td>
+                            <div style="display: flex; flex-direction: column;">
+                                <strong><%= ticket.titulo %></strong>
+                                <% if (user.tipo === 'admin') { %>
+                                    <span style="font-size: 11px; color: var(--primary); font-weight: 500; margin-top: 2px;">
+                                        <i class="fas fa-user" style="font-size: 10px; opacity: 0.7;"></i> <%= ticket.cliente_nome %>
+                                    </span>
+                                <% } %>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="status-badge bg-<%= ticket.status === 'em_progresso' ? 'progress' : (ticket.status === 'aberto' ? 'open' : (ticket.status === 'resolvido' ? 'resolved' : 'closed')) %>">
+                                <%= ticket.status.replace('_', ' ').toUpperCase() %>
+                            </span>
+                        </td>
+                        <td>
+                            <div class="priority-indicator">
+                                <span class="dot dot-<%= ticket.prioridade %>"></span>
+                                <%= ticket.prioridade.charAt(0).toUpperCase() + ticket.prioridade.slice(1) %>
+                            </div>
+                        </td>
+                        <td><%= new Date(ticket.criado_em).toLocaleDateString('pt-BR') %></td>
+                        <td>
+                            <div style="display: flex; gap: 8px; justify-content: center;">
+                                <a href="/ticket/<%= ticket.id %>" class="btn-action" style="text-decoration: none; color: var(--primary); background: rgba(44, 62, 207, 0.1); width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px; transition: 0.3s;" title="Ver Detalhes">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                
+                                <% if (user.tipo === 'admin') { %>
+                                    <a href="/excluir/<%= ticket.id %>" class="btn-action" style="text-decoration: none; color: #dc3545; background: rgba(220, 53, 69, 0.1); width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px; transition: 0.3s;" onclick="return confirm('Deseja excluir este ticket permanentemente?')" title="Excluir">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                <% } %>
+                            </div>
+                        </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    <% } else { %>
+        <div style="padding: 60px 20px; text-align: center; display: flex; flex-direction: column; align-items: center;">
+            <div style="width: 80px; height: 80px; background: #f0f2ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+                <i class="fas fa-inbox" style="font-size: 32px; color: var(--primary); opacity: 0.5;"></i>
+            </div>
+            <h4 style="color: #3d4465; margin-bottom: 10px; font-weight: 600;">Nenhum chamado por aqui</h4>
+            <p style="color: #888; font-size: 14px; max-width: 300px; margin: 0 auto 25px;">
+                <%= user.tipo === 'admin' ? 'O sistema ainda não possui tickets registrados.' : 'Você ainda não abriu nenhum chamado de suporte.' %>
+            </p>
+            <% if (user.tipo !== 'admin') { %>
+                <a href="/create-ticket" class="btn-create-ticket" style="text-decoration: none; display: inline-flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-plus"></i> Abrir meu primeiro ticket
+                </a>
+            <% } %>
+        </div>
+    <% } %>
+</div>
+
+<div class="dashboard-grid">
+    <div class="card">
+        <div class="card-header-simple">
+            <h3>Volume de Chamados</h3>
+        </div>
+        <div class="card-body">
+            <canvas id="revenueChart" height="250"></canvas>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header-simple">
+            <h3>Status dos Meus Tickets</h3>
+        </div>
+        <div class="card-body">
+            <canvas id="statusChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. PREPARAÇÃO DOS DADOS (Lógica Dinâmica)
+    const ticketsData = <%- JSON.stringify(tickets) %>;
+    
+    // Contagem para o Gráfico de Rosca (Status)
+    const counts = {
+        aberto: 0,
+        em_progresso: 0,
+        resolvido: 0,
+        fechado: 0
+    };
+    
+    ticketsData.forEach(t => {
+        if (counts.hasOwnProperty(t.status)) counts[t.status]++;
+    });
+
+    // Gráfico de Pizza/Rosca (Status Dinâmico)
+    const ctxStatus = document.getElementById('statusChart').getContext('2d');
+    new Chart(ctxStatus, {
+        type: 'doughnut',
+        data: {
+            labels: ['Aberto', 'Em Progresso', 'Resolvido', 'Fechado'],
+            datasets: [{
+                data: [counts.aberto, counts.em_progresso, counts.resolvido, counts.fechado],
+                backgroundColor: ['#03a9f4', '#ff9800', '#27ae60', '#9e9e9e'],
+                borderWidth: 0,
+                hoverOffset: 10
+            }]
+        },
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            },
+            cutout: '70%'
+        }
+    });
+
+    // 2. Gráfico de Volume (Evolução de Chamados)
+    // Aqui vamos agrupar por data de criação para mostrar o volume real
+    const volumePorData = {};
+    ticketsData.forEach(t => {
+        const data = new Date(t.criado_em).toLocaleDateString('pt-BR', {day: '2-digit', month: '2-digit'});
+        volumePorData[data] = (volumePorData[data] || 0) + 1;
+    });
+
+    const labelsVolume = Object.keys(volumePorData).reverse().slice(0, 7); // Últimos 7 dias com dados
+    const dataVolume = labelsVolume.map(label => volumePorData[label]);
+
+    const ctxVolume = document.getElementById('revenueChart').getContext('2d');
+    new Chart(ctxVolume, {
+        type: 'line',
+        data: {
+            labels: labelsVolume.length > 0 ? labelsVolume : ['Sem dados'],
+            datasets: [{
+                label: 'Chamados',
+                data: dataVolume.length > 0 ? dataVolume : [0],
+                borderColor: '#2c3ecf',
+                backgroundColor: 'rgba(44, 62, 207, 0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 5,
+                pointBackgroundColor: '#2c3ecf'
+            }]
+        },
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 } }
+            }
+        }
+    });
+</script>
+
+<script>
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('success')) {
+            // Agora a função showToast estará definida globalmente
+            showToast("Ticket enviado com sucesso!", "sucesso");
+            
+            // Limpa a URL
+            window.history.replaceState({}, document.title, "/dashboard");
+        }
+    }
+</script>
+
+    </div> </div> </body>
+</html>
