@@ -183,6 +183,6 @@ app.post('/ticket/status', authMiddleware, async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000; // O Render vai preencher process.env.PORT automaticamente
-server.listen(PORT, () => {
-    console.log(`🚀 Plataforma rodando na porta ${PORT}`);
+app.listen(PORT, () => {
+    console.log(`Plataforma rodando na porta ${PORT}`);
 });
