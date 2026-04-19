@@ -2,9 +2,10 @@ const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 const transporter = nodemailer.createTransport({
-    host: "smtp.kinghost.net",
-    port: 465,
-    secure: true, // true para porta 465
+    // Usa a variável do Render se existir, senão usa o padrão
+    host: process.env.EMAIL_HOST || "smtp.kinghost.net",
+    port: parseInt(process.env.EMAIL_PORT) || 465,
+    secure: true, 
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
