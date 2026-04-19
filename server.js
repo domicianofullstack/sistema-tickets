@@ -182,6 +182,32 @@ app.post('/ticket/status', authMiddleware, async (req, res) => {
     } catch (err) { res.status(500).send("Erro no status"); }
 });
 
+// ROTA PARA EXCLUIR TICKET (APENAS ADMIN) - CORRIGIDA
+app.get('/excluir/:id', authMiddleware, async (req, res) => {
+    const usuarioLogado = req.session.usuario;
+
+    // 1. Verifica se o usuário é admin
+    if (usuarioLogado.tipo !== 'admin') {
+        return res.send("<script>alert('Acesso negado: Apenas administradores!'); window.location='/dashboard';</script>");
+    }
+
+    const ticketId = req.params.id;
+
+    try {
+        // 2. Primeiro exclui as mensagens vinculadas a esse ticket (para evitar erro de chave estrangeira)
+        await db.query("DELETE FROM ticket_mensagens WHERE ticket_id = ?", [ticketId]);
+
+        // 3. Depois exclui o ticket
+        await db.query("DELETE FROM tickets WHERE id = ?", [ticketId]);
+
+        // 4. Redireciona de volta
+        res.redirect('/dashboard?deleted=true');
+    } catch (err) {
+        console.error("Erro ao excluir ticket:", err);
+        res.status(500).send("Erro ao excluir o ticket: " + err.message);
+    }
+});
+
 const PORT = process.env.PORT || 3000; // O Render vai preencher process.env.PORT automaticamente
 app.listen(PORT, () => {
     console.log(`Plataforma rodando na porta ${PORT}`);

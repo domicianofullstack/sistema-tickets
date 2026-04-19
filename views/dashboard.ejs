@@ -203,11 +203,16 @@
 <script>
     window.onload = function() {
         const urlParams = new URLSearchParams(window.location.search);
+        
+        // Alerta de criação
         if (urlParams.get('success')) {
-            // Agora a função showToast estará definida globalmente
             showToast("Ticket enviado com sucesso!", "sucesso");
-            
-            // Limpa a URL
+            window.history.replaceState({}, document.title, "/dashboard");
+        }
+        
+        // ADICIONE ESTE BLOCO: Alerta de exclusão
+        if (urlParams.get('deleted')) {
+            showToast("Ticket excluído permanentemente!", "sucesso");
             window.history.replaceState({}, document.title, "/dashboard");
         }
     }
