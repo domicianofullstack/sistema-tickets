@@ -2,17 +2,16 @@ const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 const transporter = nodemailer.createTransport({
-    host: 'mail.domiciano.shop', 
-    port: 587,
-    secure: false, // OBRIGATÓRIO para porta 587
+    host: "smtp.kinghost.net",
+    port: 465,
+    secure: true, // true para porta 465
     auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
+        pass: process.env.EMAIL_PASS,
     },
     tls: {
-        rejectUnauthorized: false // Mantém a compatibilidade com o que vimos no PHP
-    },
-    family: 4
+        rejectUnauthorized: false
+    }
 });
 
 const enviarEmail = async (para, assunto, html) => {
